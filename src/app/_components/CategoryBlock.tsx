@@ -29,8 +29,8 @@ export default function CategoryBlock({
         </span>
       </header>
       <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
-        {category.items.map((item, i) => (
-          <TaskRow key={`${item.title}-${i}`} item={item} />
+        {category.items.map((item) => (
+          <TaskRow key={item.title} item={item} />
         ))}
       </ul>
     </section>

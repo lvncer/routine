@@ -11,6 +11,8 @@ import { getStatsCached } from "../_data/routines";
 import RangeForm from "./_components/RangeForm";
 import StatsChart from "./_components/StatsChart";
 
+const MAX_RANGE_DAYS = 366;
+
 export default function StatsPage(props: PageProps<"/stats">) {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
@@ -57,6 +59,11 @@ async function StatsContent({
       : shiftDateString(end, -29);
   if (start > end) {
     [start, end] = [end, start];
+  }
+
+  const earliestAllowedStart = shiftDateString(end, -(MAX_RANGE_DAYS - 1));
+  if (start < earliestAllowedStart) {
+    start = earliestAllowedStart;
   }
 
   const points = await getStatsCached(start, end);

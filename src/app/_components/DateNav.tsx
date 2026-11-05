@@ -35,6 +35,7 @@ export default function DateNav({ date }: { date: string }) {
             type="date"
             name="date"
             defaultValue={date}
+            aria-label="表示する日付"
             className="rounded-md border border-zinc-300 bg-transparent px-2 py-1 text-sm dark:border-zinc-700"
           />
           <button

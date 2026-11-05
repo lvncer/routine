@@ -14,6 +14,7 @@ import type { Category, StatsPoint } from "@/lib/routines/types";
 
 const OVERALL_COLOR = "#64748b";
 const OVERALL_LABEL = "全体";
+const FALLBACK_CATEGORY_COLOR = "#a1a1aa";
 
 export default function StatsChart({
   points,
@@ -22,11 +23,19 @@ export default function StatsChart({
   points: StatsPoint[];
   categories: Category[];
 }) {
+  const configuredNames = new Set(categories.map((c) => c.name));
+  const extraCategories: Category[] = Array.from(
+    new Set(points.flatMap((p) => Object.keys(p.categories))),
+  )
+    .filter((name) => !configuredNames.has(name))
+    .map((name) => ({ name, color: FALLBACK_CATEGORY_COLOR }));
+  const allCategories = [...categories, ...extraCategories];
+
   const data = points.map((point) => ({
     date: point.date,
     [OVERALL_LABEL]: point.overall,
     ...Object.fromEntries(
-      categories.map((c) => [c.name, point.categories[c.name] ?? null]),
+      allCategories.map((c) => [c.name, point.categories[c.name] ?? null]),
     ),
   }));
 
@@ -59,7 +68,7 @@ export default function StatsChart({
             dot={{ r: 3 }}
             connectNulls={false}
           />
-          {categories.map((category) => (
+          {allCategories.map((category) => (
             <Line
               key={category.name}
               type="monotone"

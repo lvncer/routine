@@ -16,10 +16,13 @@ export default function TaskRow({ item }: { item: RoutineItem }) {
         <p
           className={`text-sm font-medium ${
             item.checked
-              ? "text-zinc-400 line-through dark:text-zinc-600"
+              ? "text-zinc-600 line-through dark:text-zinc-400"
               : "text-zinc-900 dark:text-zinc-100"
           }`}
         >
+          <span className="sr-only">
+            {item.checked ? "完了: " : "未完了: "}
+          </span>
           {item.title}
         </p>
         {item.detail && (
