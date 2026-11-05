@@ -1,0 +1,34 @@
+name: Generate daily routine file
+
+on:
+  schedule:
+    - cron: "0 15 * * *" # UTC 15:00 = JST 翌0:00
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "対象日 (YYYY-MM-DD)。省略時はJSTの今日"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run scripts/generate-daily-file.ts
+        env:
+          TARGET_DATE: ${{ github.event.inputs.date }}
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: add daily routine file"
+          file_pattern: data/days/*.md
