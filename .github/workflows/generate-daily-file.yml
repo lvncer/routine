@@ -1,0 +1,61 @@
+name: Generate daily routine file
+
+on:
+  schedule:
+    - cron: "0 15 * * *" # UTC 15:00 = JST 翌0:00
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "対象日 (YYYY-MM-DD)。省略時はJSTの今日"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.generate.outputs.created }}
+      date: ${{ steps.generate.outputs.date }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - id: generate
+        run: bun run scripts/generate-daily-file.ts
+        env:
+          TARGET_DATE: ${{ github.event.inputs.date }}
+
+      - if: steps.generate.outputs.created == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: daily-routine-file
+          path: data/days/${{ steps.generate.outputs.date }}.md
+          retention-days: 1
+
+  commit:
+    needs: generate
+    if: needs.generate.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: daily-routine-file
+          path: data/days
+
+      - uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
+        with:
+          commit_message: "chore: add daily routine file"
+          file_pattern: data/days/*.md

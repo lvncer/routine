@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  outputFileTracingIncludes: {
+    "/": ["data/**/*"],
+    "/stats": ["data/**/*"],
+  },
   turbopack: {
     rules: {
       "*.css": {
