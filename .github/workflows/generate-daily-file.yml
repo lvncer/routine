@@ -41,12 +41,20 @@ jobs:
           path: data/days/${{ steps.generate.outputs.date }}.md
           retention-days: 1
 
-  commit:
+  # Opens a PR instead of committing straight to main so that GitHub's own
+  # "pull request opened" notification email doubles as the morning alert,
+  # with no extra email service or credentials needed. The PR is merged
+  # immediately after, so main still gets the file with no manual step.
+  open-pr:
     needs: generate
     if: needs.generate.outputs.created == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DATE: ${{ needs.generate.outputs.date }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
@@ -55,7 +63,20 @@ jobs:
           name: daily-routine-file
           path: data/days
 
-      - uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
-        with:
-          commit_message: "chore: add daily routine file"
-          file_pattern: data/days/*.md
+      - name: Create branch and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "routine/${DATE}"
+          git add "data/days/${DATE}.md"
+          git commit -m "chore: add daily routine file for ${DATE}"
+          git push origin "routine/${DATE}"
+
+      - name: Open and merge pull request
+        run: |
+          gh pr create \
+            --title "chore: routine for ${DATE}" \
+            --body "Auto-generated daily routine file for ${DATE}." \
+            --head "routine/${DATE}" \
+            --base main
+          gh pr merge "routine/${DATE}" --merge --delete-branch
