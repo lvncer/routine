@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { getTodayJST, isValidDateString } from "@/lib/routines/dateUtils";
-import { getDayCached } from "../_data/routines";
+import { getDayCached } from "@/data/routines";
 import CategoryBlock from "./CategoryBlock";
 import DateNav from "./DateNav";
 import EmptyDay from "./EmptyDay";

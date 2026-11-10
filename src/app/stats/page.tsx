@@ -7,9 +7,9 @@ import {
   isValidDateString,
   shiftDateString,
 } from "@/lib/routines/dateUtils";
-import { getStatsCached } from "../_data/routines";
-import RangeForm from "./_components/RangeForm";
-import StatsChart from "./_components/StatsChart";
+import { getStatsCached } from "@/data/routines";
+import RangeForm from "@/components/RangeForm";
+import StatsChart from "@/components/StatsChart";
 
 const MAX_RANGE_DAYS = 366;
 

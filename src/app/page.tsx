@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import DaySkeleton from "./_components/DaySkeleton";
-import ResolvedDay from "./_components/ResolvedDay";
+import DaySkeleton from "@/components/DaySkeleton";
+import ResolvedDay from "@/components/ResolvedDay";
 
 export default function Home(props: PageProps<"/">) {
   return (
