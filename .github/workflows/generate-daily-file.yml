@@ -70,13 +70,18 @@ jobs:
           git checkout -b "routine/${DATE}"
           git add "data/days/${DATE}.md"
           git commit -m "chore: add daily routine file for ${DATE}"
-          git push origin "routine/${DATE}"
+          # --force: a same-named branch can be left over from a previous
+          # run that failed after this push (e.g. at the PR step below), so
+          # this run's fresh single-commit branch must be allowed to replace it.
+          git push --force origin "routine/${DATE}"
 
       - name: Open and merge pull request
         run: |
-          gh pr create \
-            --title "chore: routine for ${DATE}" \
-            --body "Auto-generated daily routine file for ${DATE}." \
-            --head "routine/${DATE}" \
-            --base main
+          if ! gh pr view "routine/${DATE}" >/dev/null 2>&1; then
+            gh pr create \
+              --title "chore: routine for ${DATE}" \
+              --body "Auto-generated daily routine file for ${DATE}." \
+              --head "routine/${DATE}" \
+              --base main
+          fi
           gh pr merge "routine/${DATE}" --merge --delete-branch
